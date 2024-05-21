@@ -1,0 +1,11 @@
+[package]
+name = "mfornode"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+repository = "https://github.com/berlinen/mfornode.git"
+description = "Fast and simple Node.js version manager"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
