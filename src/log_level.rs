@@ -20,3 +20,10 @@ impl Display for LogLevel {
         }
     }
 }
+
+impl LogLevel {
+    pub fn is_writable(&self, logging: &Self) -> bool {
+        use std::cmp::Ordering;
+        matches!(self.cmp(logging), Ordering::Greater | Ordering::Equal)
+    }
+}
