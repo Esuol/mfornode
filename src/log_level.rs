@@ -37,4 +37,18 @@ impl LogLevel {
             Box::from(std::io::sink())
         }
     }
+
+    pub fn possible_values() -> &'static [&'static str; 4] {
+        &["quiet", "info", "all", "error"]
+    }
+}
+
+impl From<LogLevel> for &'static str {
+    fn from(value: LogLevel) -> Self {
+        match value {
+            LogLevel::Quiet => "quiet",
+            LogLevel::Error => "error",
+            LogLevel::Info => "info",
+        }
+    }
 }
