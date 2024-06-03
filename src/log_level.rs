@@ -60,3 +60,16 @@ macro_rules! outln {
         writeln!($config.log_level().writer_for(&$level), $($expr),+).expect("Can't write output");
     }};
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_writable() {
+        assert!(!LogLevel::Quiet.is_writable(&LogLevel::Info));
+        assert!(!LogLevel::Error.is_writable(&LogLevel::Info));
+        assert!(LogLevel::Info.is_writable(&LogLevel::Info));
+        assert!(LogLevel::Info.is_writable(&LogLevel::Error));
+    }
+}
