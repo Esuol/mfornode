@@ -26,4 +26,15 @@ impl LogLevel {
         use std::cmp::Ordering;
         matches!(self.cmp(logging), Ordering::Greater | Ordering::Equal)
     }
+
+    pub fn writer_for(&self, logging: &Self) -> Box<dyn std::io::Write> {
+        if self.is_writable(logging) {
+            match logging {
+                Self::Error => Box::from(std::io::stderr()),
+                _ => Box::from(std::io::stdout()),
+            }
+        } else {
+            Box::from(std::io::sink())
+        }
+    }
 }
