@@ -8,6 +8,7 @@ mod path_ext;
 mod system_info;
 mod system_version;
 mod version;
+mod version_file_strategy;
 
 fn main() {
     println!("Hello, world!");
