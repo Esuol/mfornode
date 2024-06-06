@@ -24,12 +24,7 @@ pub struct FnmConfig {
     )]
     pub base_dir: Option<std::path::PathBuf>,
 
-    #[clap(
-        long,
-        env = "FNM_MULTISHELL_PATH",
-        hide_env_values = true,
-        hide = true,
-    )]
+    #[clap(long, env = "FNM_MULTISHELL_PATH", hide_env_values = true, hide = true)]
     multishell_path: Option<std::path::PathBuf>,
 
     #[clap(
@@ -67,4 +62,13 @@ pub struct FnmConfig {
         hide_env_values = true
     )]
     corepack_enabled: bool,
+
+    #[clap(
+        long,
+        env = "FNM_RESOLVE_ENGINES",
+        global = true,
+        hide_env_values = true
+        verbatim_doc_comment
+    )]
+    resolve_engines: bool,
 }
