@@ -88,4 +88,16 @@ impl Default for FnmConfig {
     }
 }
 
-impl FnmConfig {}
+impl FnmConfig {
+    pub fn version_file_strategy(&self) -> &VersionFileStrategy {
+        &self.version_file_strategy
+    }
+
+    pub fn corepack_enabled(&self) -> bool {
+        self.corepack_enabled
+    }
+
+    pub fn resolve_engines(&self) -> bool {
+        self.resolve_engines
+    }
+}
