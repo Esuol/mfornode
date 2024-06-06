@@ -132,4 +132,20 @@ impl FnmConfig {
             .expect("Can not get data directory for fnm")
             .ensure_exists_silently()
     }
+
+    pub fn installations_dir(&self) -> std::path::PathBuf {
+        self.base_dir_with_default()
+            .join("node-versions")
+            .ensure_exists_silently()
+    }
+
+    pub fn default_version_dir(&self) -> std::path::PathBuf {
+        self.aliases_dir().join("default")
+    }
+
+    pub fn aliases_dir(&self) -> std::path::PathBuf {
+        self.base_dir_with_default()
+            .join("aliases")
+            .ensure_exists_silently()
+    }
 }
