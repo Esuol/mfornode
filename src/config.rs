@@ -23,4 +23,48 @@ pub struct FnmConfig {
         hide_env_values = true
     )]
     pub base_dir: Option<std::path::PathBuf>,
+
+    #[clap(
+        long,
+        env = "FNM_MULTISHELL_PATH",
+        hide_env_values = true,
+        hide = true,
+    )]
+    multishell_path: Option<std::path::PathBuf>,
+
+    #[clap(
+        long,
+        env = "FNM_LOGLEVEL",
+        default_value_t,
+        global = true,
+        hide_env_values = true
+    )]
+    log_level: LogLevel,
+
+    #[clap(
+      long,
+      env = "FEOM_ARCH",
+      default_value_t,
+      global = true,
+      hide_env_values = true
+      hide_default_value = true
+    )]
+    pub arch: Arch,
+
+    #[clap(
+        long,
+        env = "FNM_VERSION_FILE_STRATEGY",
+        default_value_t,
+        global = true,
+        hide_env_values = true
+    )]
+    version_file_strategy: VersionFileStrategy,
+
+    #[clap(
+        long,
+        env = "FNM_COREPACK_ENABLED",
+        global = true,
+        hide_env_values = true
+    )]
+    corepack_enabled: bool,
 }
