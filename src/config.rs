@@ -100,4 +100,36 @@ impl FnmConfig {
     pub fn resolve_engines(&self) -> bool {
         self.resolve_engines
     }
+
+    pub fn multishell_path(&self) -> Option<&std::path::Path> {
+        match &self.multishell_path {
+            None => None,
+            Some(v) => Some(v.as_path()),
+        }
+    }
+
+    pub fn log_level(&self) -> &LogLevel {
+        &self.log_level
+    }
+
+    pub fn base_dir_with_default(&self) -> std::path::PathBuf {
+        let user_pref = self.base_dir.clone();
+        if let Some(dir) = user_pref {
+            return dir;
+        }
+
+        let legacy = home_dir()
+            .map(|dir| dir.join(".fnm"))
+            .filter(|dir| dir.exists());
+
+        let modern = data_dir().map(|dir| dir.join("fnm"));
+
+        if let Some(dir) = legacy {
+            return dir;
+        }
+
+        modern
+            .expect("Can not get data directory for fnm")
+            .ensure_exists_silently()
+    }
 }
