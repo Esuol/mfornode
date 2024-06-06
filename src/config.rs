@@ -72,3 +72,20 @@ pub struct FnmConfig {
     )]
     resolve_engines: bool,
 }
+
+impl Default for FnmConfig {
+    fn default() -> Self {
+        Self {
+            node_dist_mirror: Url::parse("https://nodejs.org/dist").unwrap(),
+            base_dir: None,
+            multishell_path: None,
+            log_level: LogLevel::Info,
+            arch: Arch::default(),
+            version_file_strategy: VersionFileStrategy::default(),
+            corepack_enabled: false,
+            resolve_engines: false,
+        }
+    }
+}
+
+impl FnmConfig {}
