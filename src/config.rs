@@ -148,4 +148,10 @@ impl FnmConfig {
             .join("aliases")
             .ensure_exists_silently()
     }
+
+    #[cfg(test)]
+    pub fn with_base_dir(mut self, base_dir: Option<std::path::PathBuf>) -> Self {
+        self.base_dir = base_dir;
+        self
+    }
 }
