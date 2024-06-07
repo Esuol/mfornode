@@ -1,6 +1,7 @@
 mod alias;
 mod arch;
 mod config;
+mod current_version;
 mod fs;
 mod log_level;
 mod lts;
