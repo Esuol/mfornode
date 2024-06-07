@@ -12,7 +12,24 @@ pub fn current_version(config: &FnmConfig) -> Result<Option<Version>, Error> {
     }
 
     if let Ok(resolved_path) = std::fs::canonicalize(multishell_path) {
-        let installation_path = resolved_path.parent().expect("multishell path can't be in the root")
+        let installation_path = resolved_path
+            .parent()
+            .expect("multishell path can't be in the root");
+
+        let file_name = installation_path
+            .file_name()
+            .expect("Can't get filename")
+            .to_str()
+            .expect("Invalid OS string");
+
+        let version = Version::parse(file_name).map_err(|source| Error::VersionError {
+            source,
+            version: file_name.to_string(),
+        })?;
+
+        Ok(Some(version))
+    } else {
+        Ok(None)
     }
 }
 
