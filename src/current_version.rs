@@ -37,7 +37,7 @@ pub fn current_version(config: &FnmConfig) -> Result<Option<Version>, Error> {
 pub enum Error {
     #[error("`fnm env` was not applied in this context.\nCan't find fnm's environment variables")]
     EnvNotApplied,
-    #[error("Can't read the version as a valid semver")]
+    #[error("Can't read the version as a valid semver version: {version}\n{source}")]
     VersionError {
         source: node_semver::SemverError,
         version: String,
