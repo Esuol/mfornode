@@ -10,6 +10,7 @@ mod system_info;
 mod system_version;
 mod version;
 mod version_file_strategy;
+mod default_version;
 
 fn main() {
     println!("Hello, world!");
