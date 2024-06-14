@@ -11,6 +11,7 @@ mod system_version;
 mod version;
 mod version_file_strategy;
 mod default_version;
+mod directories;
 
 fn main() {
     println!("Hello, world!");
