@@ -12,6 +12,7 @@ mod version;
 mod version_file_strategy;
 mod default_version;
 mod directories;
+mod directory_portal;
 
 fn main() {
     println!("Hello, world!");
