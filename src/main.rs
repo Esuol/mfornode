@@ -15,6 +15,7 @@ mod system_version;
 mod version;
 mod version_file_strategy;
 mod http;
+mod installed_version;
 
 fn main() {
     println!("Hello, world!");
