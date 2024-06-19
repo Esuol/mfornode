@@ -1,5 +1,6 @@
 use crate::version::Version;
 use anyhow::{Error, Ok};
+use clap::error;
 use std::path::Path;
 use thiserror::Error;
 
@@ -26,4 +27,18 @@ pub fn list<P: AsRef<Path>>(installations_dir: P) -> Result<Vec<Version>, Error>
 
         Ok(vec)
     }
+}
+
+#[derive(Debug, Error)]
+pub enum Error {
+  #[error(transparent)]
+  IoError {
+    #[form]
+    source: std::io::Error,
+  },
+  #[error(transparent)]
+  SemverError {
+    #[form]
+    source: node_semver::SemverError,
+  }
 }
