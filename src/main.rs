@@ -17,6 +17,7 @@ mod system_info;
 mod system_version;
 mod version;
 mod version_file_strategy;
+mod user_version_reader;
 
 fn main() {
     println!("Hello, world!");
