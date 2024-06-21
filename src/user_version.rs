@@ -88,3 +88,15 @@ impl FromStr for UserVersion {
         }
     }
 }
+
+#[cfg(test)]
+impl PartialEq for UserVersion {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::OnlyMajor(a), Self::OnlyMajor(b)) if a == b => true,
+            (Self::MajorMinor(a1, a2), Self::MajorMinor(b1, b2)) if (a1, a2) == (b1, b2) => true,
+            (Self::Full(v1), Self::Full(v2)) if v1 == v2 => true,
+            (_, _) => false,
+        }
+    }
+}
