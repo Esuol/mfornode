@@ -67,3 +67,24 @@ impl std::fmt::Display for UserVersion {
         }
     }
 }
+
+fn skip_first_v(str: &str) -> &str {
+    str.strip_prefix('v').unwrap_or(str)
+}
+
+impl FromStr for UserVersion {
+    type Err = node_semver::SemverError;
+    fn from_str(s: &str) -> Result<UserVersion, Self::Err> {
+        match Version::parse(s) {
+            Ok(v) => Ok(Self::Full(v)),
+            Err(e) => {
+                let mut parts = skip_first_v(s.trim()).split('.');
+                match (next_of::<u64, _>(&mut parts), next_of::<u64, _>(&mut parts)) {
+                    (Some(major), None) => Ok(Self::OnlyMajor(major)),
+                    (Some(major), Some(minor)) => Ok(Self::MajorMinor(major, minor)),
+                    _ => Err(e),
+                }
+            }
+        }
+    }
+}
