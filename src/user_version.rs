@@ -56,3 +56,14 @@ fn next_of<'a, T: FromStr, It: Iterator<Item = &'a str>>(i: &mut It) -> Option<T
     let x = i.next()?;
     T::from_str(x).ok()
 }
+
+impl std::fmt::Display for UserVersion {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Full(x) => x.fmt(f),
+            Self::SemverRange(x) => x.fmt(f),
+            Self::OnlyMajor(major) => write!(f, "v{major}.x.x"),
+            Self::MajorMinor(major, minor) => write!(f, "v{major}.{minor}.x"),
+        }
+    }
+}
