@@ -100,3 +100,71 @@ impl PartialEq for UserVersion {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::config::FnmConfig;
+
+    use super::*;
+
+    #[test]
+    fn test_parsing_only_major() {
+        let version = UserVersion::from_str("10").ok();
+        assert_eq!(version, Some(UserVersion::OnlyMajor(10)));
+    }
+
+    #[test]
+    fn test_parsing_major_minor() {
+        let version = UserVersion::from_str("10.20").ok();
+        assert_eq!(version, Some(UserVersion::MajorMinor(10, 20)));
+    }
+
+    #[test]
+    fn test_parsing_only_major_with_v() {
+        let version = UserVersion::from_str("v10").ok();
+        assert_eq!(version, Some(UserVersion::OnlyMajor(10)));
+    }
+
+    #[test]
+    fn test_major_to_version() {
+        let expected = Version::parse("6.1.0").unwrap();
+        let versions = vec![
+            Version::parse("6.0.0").unwrap(),
+            Version::parse("6.0.1").unwrap(),
+            expected.clone(),
+            Version::parse("7.0.1").unwrap(),
+        ];
+        let result = UserVersion::OnlyMajor(6).to_version(&versions, &FnmConfig::default());
+
+        assert_eq!(result, Some(&expected));
+    }
+
+    #[test]
+    fn test_major_minor_to_version() {
+        let expected = Version::parse("6.0.1").unwrap();
+        let versions = vec![
+            Version::parse("6.0.0").unwrap(),
+            Version::parse("6.1.0").unwrap(),
+            expected.clone(),
+            Version::parse("7.0.1").unwrap(),
+        ];
+        let result = UserVersion::MajorMinor(6, 0).to_version(&versions, &FnmConfig::default());
+
+        assert_eq!(result, Some(&expected));
+    }
+
+    #[test]
+    fn test_semver_to_version() {
+        let expected = Version::parse("6.0.0").unwrap();
+        let versions = vec![
+            expected.clone(),
+            Version::parse("6.1.0").unwrap(),
+            Version::parse("6.0.1").unwrap(),
+            Version::parse("7.0.1").unwrap(),
+        ];
+        let result =
+            UserVersion::Full(expected.clone()).to_version(&versions, &FnmConfig::default());
+
+        assert_eq!(result, Some(&expected));
+    }
+}
