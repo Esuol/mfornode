@@ -52,3 +52,7 @@ impl UserVersion {
     }
 }
 
+fn next_of<'a, T: FromStr, It: Iterator<Item = &'a str>>(i: &mut It) -> Option<T> {
+    let x = i.next()?;
+    T::from_str(x).ok()
+}
