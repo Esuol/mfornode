@@ -17,3 +17,23 @@ impl std::fmt::Display for Error {
         }
     }
 }
+
+impl StdError for Error {}
+
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        Error::IoError(err)
+    }
+}
+
+impl From<zip::result::ZipError> for Error {
+    fn from(err: zip::result::ZipError) -> Self {
+        Self::ZipError(err)
+    }
+}
+
+impl From<crate::http::Error> for Error {
+    fn from(err: crate::http::Error) -> Self {
+        Self::HttpError(err)
+    }
+}
