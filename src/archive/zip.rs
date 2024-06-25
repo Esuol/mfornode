@@ -79,3 +79,23 @@ impl<R: Read> Extract for Zip<R> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test_log::test]
+    fn test_zip_extraction() {
+        let temp_dir = tempfile::tempdir().expect("Can't create a temp directory");
+        let response = crate::http::get("https://nodejs.org/dist/v12.0.0/node-v12.0.0-win-x64.zip")
+            .expect("Can't make request to Node v12.0.0 zip file");
+        Zip::new(response)
+            .extract_into(&temp_dir)
+            .expect("Can't unzip files");
+        let node_file = temp_dir
+            .as_ref()
+            .join("node-v12.0.0-win-x64")
+            .join("node.exe");
+        assert!(node_file.exists());
+    }
+}
