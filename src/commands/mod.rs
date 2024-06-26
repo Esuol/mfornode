@@ -1,1 +1,2 @@
 mod alias;
+mod command;
