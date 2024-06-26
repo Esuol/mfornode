@@ -1,6 +1,7 @@
 mod alias;
 mod arch;
 mod archive;
+mod commands;
 mod config;
 mod current_version;
 mod default_version;
