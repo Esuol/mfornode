@@ -12,4 +12,11 @@ pub trait Command: Sized {
         outln!(config, Error, "{} {}", "error:".red().bold(), err_s.red());
         std::process::exit(1);
     }
+
+    fn call(self, config: FnmConfig) {
+        match self.apply(&config) {
+            Ok(()) => (),
+            Err(err) => Self::handle_error(err, &config),
+        }
+    }
 }
