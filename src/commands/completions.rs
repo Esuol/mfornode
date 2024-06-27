@@ -12,3 +12,22 @@ pub struct Completions {
     #[clap(long)]
     shell: Option<Shells>,
 }
+
+
+impl Command for Completions {
+  type Error = Error;
+
+  fn apply(self, _config: &FnmConfig) -> Result<(), Self::Error> {
+      let mut stdio = std::io::stdout();
+      let shell: Box<dyn Shell> = self
+          .shell
+          .map(Into::into)
+          .or_else(|| infer_shell().map(Into::into))
+          .ok_or(Error::CantInferShell)?;
+      let shell: ClapShell = shell.into();
+      let mut app = Cli::command();
+      app.build();
+      shell.generate(&app, &mut stdio);
+      Ok(())
+  }
+}
