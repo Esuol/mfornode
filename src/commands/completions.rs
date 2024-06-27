@@ -13,21 +13,40 @@ pub struct Completions {
     shell: Option<Shells>,
 }
 
-
 impl Command for Completions {
-  type Error = Error;
+    type Error = Error;
 
-  fn apply(self, _config: &FnmConfig) -> Result<(), Self::Error> {
-      let mut stdio = std::io::stdout();
-      let shell: Box<dyn Shell> = self
-          .shell
-          .map(Into::into)
-          .or_else(|| infer_shell().map(Into::into))
-          .ok_or(Error::CantInferShell)?;
-      let shell: ClapShell = shell.into();
-      let mut app = Cli::command();
-      app.build();
-      shell.generate(&app, &mut stdio);
-      Ok(())
-  }
+    fn apply(self, _config: &FnmConfig) -> Result<(), Self::Error> {
+        let mut stdio = std::io::stdout();
+        let shell: Box<dyn Shell> = self
+            .shell
+            .map(Into::into)
+            .or_else(|| infer_shell().map(Into::into))
+            .ok_or(Error::CantInferShell)?;
+        let shell: ClapShell = shell.into();
+        let mut app = Cli::command();
+        app.build();
+        shell.generate(&app, &mut stdio);
+        Ok(())
+    }
+}
+
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error(
+        "{}\n{}\n{}\n{}",
+        "Can't infer shell!",
+        "fnm can't infer your shell based on the process tree.",
+        "Maybe it is unsupported? we support the following shells:",
+        shells_as_string()
+    )]
+    CantInferShell,
+}
+
+fn shells_as_string() -> String {
+    Shells::value_variants()
+        .iter()
+        .map(|x| format!("* {x}"))
+        .collect::<Vec<_>>()
+        .join("\n")
 }
