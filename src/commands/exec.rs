@@ -22,3 +22,22 @@ pub struct Exec {
     /// The command to run
     arguments: Vec<String>,
 }
+
+impl Exec {
+  pub(crate) fn new_for_version(
+      version: &crate::version::Version,
+      cmd: &str,
+      arguments: &[&str],
+  ) -> Self {
+      let reader = UserVersionReader::Direct(UserVersion::Full(version.clone()));
+      let args: Vec<_> = std::iter::once(cmd)
+          .chain(arguments.iter().copied())
+          .map(String::from)
+          .collect();
+      Self {
+          version: Some(reader),
+          using_file: false,
+          arguments: args,
+      }
+  }
+}
