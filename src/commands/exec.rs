@@ -108,3 +108,29 @@ impl Cmd for Exec {
         std::process::exit(code);
     }
 }
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Can't spawn program: {source}\nMaybe the program {} does not exist on not available in PATH?", binary.bold())]
+    CantSpawnProgram {
+        source: std::io::Error,
+        binary: String,
+    },
+    #[error("Can't read path environment variable")]
+    CantReadPathVariable,
+    #[error("Can't add path to environment variable: {}", source)]
+    CantAddPathToEnvironment { source: std::env::JoinPathsError },
+    #[error("Can't find version in dotfiles. Please provide a version manually to the command.")]
+    CantInferVersion,
+    #[error("Requested version {} is not currently installed", version)]
+    VersionNotFound { version: UserVersion },
+    #[error(transparent)]
+    ApplicableVersionError {
+        #[from]
+        source: UserInputError,
+    },
+    #[error("Can't read exit code from process.\nMaybe the process was killed using a signal?")]
+    CantReadProcessExitCode,
+    #[error("command not provided. Please provide a command to run as an argument, like {} or {}.\n{} {}", "node".italic(), "bash".italic(), "example:".yellow().bold(), "fnm exec --using=12 node --version".italic().yellow())]
+    NoBinaryProvided,
+}
