@@ -12,3 +12,17 @@ use crate::version_files::get_user_version_for_directory;
 use colored::Colorize;
 use log::debug;
 use thiserror::Error;
+
+#[derive(clap::Parser, Debug, Default)]
+pub struct Install {
+    /// A version string. Can be a partial semver or a LTS version name by the format lts/NAME
+    pub version: Option<UserVersion>,
+
+    /// Install latest LTS
+    #[clap(long, conflicts_with_all = &["version", "latest"])]
+    pub lts: bool,
+
+    /// Install latest version
+    #[clap(long, conflicts_with_all = &["version", "lts"])]
+    pub latest: bool,
+}
