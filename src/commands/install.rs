@@ -26,3 +26,26 @@ pub struct Install {
     #[clap(long, conflicts_with_all = &["version", "lts"])]
     pub latest: bool,
 }
+
+impl Install {
+    fn version(self) -> Result<Option<UserVersion>, Error> {
+        match self {
+            Self {
+                version: v,
+                lts: false,
+                latest: false,
+            } => Ok(v),
+            Self {
+                version: None,
+                lts: true,
+                latest: false,
+            } => Ok(Some(UserVersion::Full(Version::Lts(LtsType::Latest)))),
+            Self {
+                version: None,
+                lts: false,
+                latest: true,
+            } => Ok(Some(UserVersion::Full(Version::Latest))),
+            _ => Err(Error::TooManyVersionsProvided),
+        }
+    }
+}
