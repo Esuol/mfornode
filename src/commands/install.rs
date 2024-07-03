@@ -163,3 +163,36 @@ impl Command for Install {
         Ok(())
     }
 }
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Can't download the requested binary: {}", source)]
+    DownloadError { source: DownloaderError },
+    #[error(transparent)]
+    IoError {
+        #[from]
+        source: std::io::Error,
+    },
+    #[error("Can't enable corepack: {source}")]
+    CorepackError {
+        #[from]
+        source: super::exec::Error,
+    },
+    #[error("Can't find version in dotfiles. Please provide a version manually to the command.")]
+    CantInferVersion,
+    #[error("Having a hard time listing the remote versions: {}", source)]
+    CantListRemoteVersions { source: crate::http::Error },
+    #[error(
+        "Can't find a Node version that matches {} in remote",
+        requested_version
+    )]
+    CantFindNodeVersion { requested_version: UserVersion },
+    #[error("Can't find relevant LTS named {}", lts_type)]
+    CantFindRelevantLts { lts_type: crate::lts::LtsType },
+    #[error("Can't find any versions in the upstream version index.")]
+    CantFindLatest,
+    #[error("The requested version is not installable: {}", version.v_str())]
+    UninstallableVersion { version: Version },
+    #[error("Too many versions provided. Please don't use --lts with a version string.")]
+    TooManyVersionsProvided,
+}
