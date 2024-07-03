@@ -52,5 +52,114 @@ impl Install {
 }
 
 impl Command for Install {
-  type Error = Error;
+    type Error = Error;
+
+    fn apply(self, config: &FnmConfig) -> Result<(), Self::Error> {
+        let current_dir = std::env::current_dir().unwrap();
+
+        let current_version = self
+            .version()?
+            .or_else(|| get_user_version_for_directory(current_dir, config))
+            .ok_or(Error::CantInferVersion)?;
+
+        let version = match current_version.clone() {
+            UserVersion::Full(Version::Semver(actual_version)) => Version::Semver(actual_version),
+            UserVersion::Full(v @ (Version::Bypassed | Version::Alias(_))) => {
+                return Err(Error::UninstallableVersion { version: v });
+            }
+            UserVersion::Full(Version::Lts(lts_type)) => {
+                let available_versions: Vec<_> = remote_node_index::list(&config.node_dist_mirror)
+                    .map_err(|source| Error::CantListRemoteVersions { source })?;
+                let picked_version = lts_type
+                    .pick_latest(&available_versions)
+                    .ok_or_else(|| Error::CantFindRelevantLts {
+                        lts_type: lts_type.clone(),
+                    })?
+                    .version
+                    .clone();
+                debug!(
+                    "Resolved {} into Node version {}",
+                    Version::Lts(lts_type).v_str().cyan(),
+                    picked_version.v_str().cyan()
+                );
+                picked_version
+            }
+            UserVersion::Full(Version::Latest) => {
+                let available_versions: Vec<_> = remote_node_index::list(&config.node_dist_mirror)
+                    .map_err(|source| Error::CantListRemoteVersions { source })?;
+                let picked_version = available_versions
+                    .last()
+                    .ok_or(Error::CantFindLatest)?
+                    .version
+                    .clone();
+                debug!(
+                    "Resolved {} into Node version {}",
+                    Version::Latest.v_str().cyan(),
+                    picked_version.v_str().cyan()
+                );
+                picked_version
+            }
+            current_version => {
+                let available_versions: Vec<_> = remote_node_index::list(&config.node_dist_mirror)
+                    .map_err(|source| Error::CantListRemoteVersions { source })?
+                    .drain(..)
+                    .map(|x| x.version)
+                    .collect();
+
+                current_version
+                    .to_version(&available_versions, config)
+                    .ok_or(Error::CantFindNodeVersion {
+                        requested_version: current_version,
+                    })?
+                    .clone()
+            }
+        };
+
+        // Automatically swap Apple Silicon to x64 arch for appropriate versions.
+        let safe_arch = get_safe_arch(&config.arch, &version);
+
+        let version_str = format!("Node {}", &version);
+        outln!(
+            config,
+            Info,
+            "Installing {} ({})",
+            version_str.cyan(),
+            safe_arch.to_string()
+        );
+
+        match install_node_dist(
+            &version,
+            &config.node_dist_mirror,
+            config.installations_dir(),
+            safe_arch,
+        ) {
+            Err(err @ DownloaderError::VersionAlreadyInstalled { .. }) => {
+                outln!(config, Error, "{} {}", "warning:".bold().yellow(), err);
+            }
+            Err(source) => Err(Error::DownloadError { source })?,
+            Ok(_) => {}
+        };
+
+        if config.corepack_enabled() {
+            outln!(config, Info, "Enabling corepack for {}", version_str.cyan());
+            enable_corepack(&version, config)?;
+        }
+
+        if let UserVersion::Full(Version::Lts(lts_type)) = current_version {
+            let alias_name = Version::Lts(lts_type).v_str();
+            debug!(
+                "Tagging {} as alias for {}",
+                alias_name.cyan(),
+                version.v_str().cyan()
+            );
+            create_alias(config, &alias_name, &version)?;
+        }
+
+        if !config.default_version_dir().exists() {
+            debug!("Tagging {} as the default version", version.v_str().cyan());
+            create_alias(config, "default", &version)?;
+        }
+
+        Ok(())
+    }
 }
