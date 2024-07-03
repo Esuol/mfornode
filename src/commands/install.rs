@@ -9,6 +9,7 @@ use crate::remote_node_index;
 use crate::user_version::UserVersion;
 use crate::version::Version;
 use crate::version_files::get_user_version_for_directory;
+use anyhow::Error;
 use colored::Colorize;
 use log::debug;
 use thiserror::Error;
@@ -48,4 +49,8 @@ impl Install {
             _ => Err(Error::TooManyVersionsProvided),
         }
     }
+}
+
+impl Command for Install {
+  type Error = Error;
 }
