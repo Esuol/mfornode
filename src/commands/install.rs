@@ -196,3 +196,63 @@ pub enum Error {
     #[error("Too many versions provided. Please don't use --lts with a version string.")]
     TooManyVersionsProvided,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::assert_eq;
+    use std::str::FromStr;
+
+    #[test]
+    fn test_set_default_on_new_installation() {
+        let base_dir = tempfile::tempdir().unwrap();
+        let config = FnmConfig::default().with_base_dir(Some(base_dir.path().to_path_buf()));
+        assert!(!config.default_version_dir().exists());
+
+        Install {
+            version: UserVersion::from_str("12.0.0").ok(),
+            lts: false,
+            latest: false,
+        }
+        .apply(&config)
+        .expect("Can't install");
+
+        assert!(config.default_version_dir().exists());
+        assert_eq!(
+            config.default_version_dir().canonicalize().ok(),
+            config
+                .installations_dir()
+                .join("v12.0.0")
+                .join("installation")
+                .canonicalize()
+                .ok()
+        );
+    }
+
+    #[test]
+    fn test_install_latest() {
+        let base_dir = tempfile::tempdir().unwrap();
+        let config = FnmConfig::default().with_base_dir(Some(base_dir.path().to_path_buf()));
+
+        Install {
+            version: None,
+            lts: false,
+            latest: true,
+        }
+        .apply(&config)
+        .expect("Can't install");
+
+        let available_versions: Vec<_> =
+            remote_node_index::list(&config.node_dist_mirror).expect("Can't get node version list");
+        let latest_version = available_versions.last().unwrap().version.clone();
+
+        assert!(config.installations_dir().exists());
+        assert!(config
+            .installations_dir()
+            .join(latest_version.to_string())
+            .join("installation")
+            .canonicalize()
+            .unwrap()
+            .exists());
+    }
+}
