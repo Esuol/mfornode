@@ -6,3 +6,4 @@ mod default;
 mod env;
 mod exec;
 mod install;
+mod is_local;
