@@ -46,3 +46,16 @@ impl super::command::Command for LsLocal {
         Ok(())
     }
 }
+
+fn generate_aliases_hash(config: &FnmConfig) -> std::io::Result<HashMap<String, Vec<StoredAlias>>> {
+    let mut aliases = list_aliases(config)?;
+    let mut hashmap: HashMap<String, Vec<StoredAlias>> = HashMap::with_capacity(aliases.len());
+    for alias in aliases.drain(..) {
+        if let Some(value) = hashmap.get_mut(alias.s_ver()) {
+            value.push(alias);
+        } else {
+            hashmap.insert(alias.s_ver().into(), vec![alias]);
+        }
+    }
+    Ok(hashmap)
+}
