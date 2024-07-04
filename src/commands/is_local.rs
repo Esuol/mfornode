@@ -5,3 +5,6 @@ use crate::version::Version;
 use colored::Colorize;
 use std::collections::HashMap;
 use thiserror::Error;
+
+#[derive(clap::Parser, Debug)]
+pub struct LsLocal {}
