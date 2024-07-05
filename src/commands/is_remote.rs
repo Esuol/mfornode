@@ -22,3 +22,12 @@ impl super::command::Command for LsRemote {
         Ok(())
     }
 }
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error(transparent)]
+    HttpError {
+        #[from]
+        source: crate::http::Error,
+    },
+}
