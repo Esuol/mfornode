@@ -7,3 +7,4 @@ mod env;
 mod exec;
 mod install;
 mod is_local;
+mod is_remote;
