@@ -9,3 +9,24 @@ use thiserror::Error;
 pub struct Unalias {
     pub(crate) requested_alias: String,
 }
+
+impl Command for Unalias {
+    type Error = Error;
+
+    fn apply(self, config: &FnmConfig) -> Result<(), Self::Error> {
+        let requested_version = choose_version_for_user_input::choose_version_for_user_input(
+            &UserVersion::Full(Version::Alias(self.requested_alias.clone())),
+            config,
+        )
+        .ok()
+        .flatten()
+        .ok_or(Error::AliasNotFound {
+            requested_alias: self.requested_alias,
+        })?;
+
+        remove_symlink_dir(requested_version.path())
+            .map_err(|source| Error::CantDeleteSymlink { source })?;
+
+        Ok(())
+    }
+}
