@@ -30,3 +30,11 @@ impl Command for Unalias {
         Ok(())
     }
 }
+
+#[derive(Debug, Error)]
+pub enum Error {
+    #[error("Can't delete symlink: {}", source)]
+    CantDeleteSymlink { source: std::io::Error },
+    #[error("Requested alias {} not found", requested_alias)]
+    AliasNotFound { requested_alias: String },
+}
